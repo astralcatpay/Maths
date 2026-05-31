@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Math/Studio — Analyse de fonctions</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c14;
+    --bg2: #11141d;
+    --bg3: #161a26;
+    --cy: #22d3ee;
+    --mg: #f472b6;
+    --lm: #a3e635;
+    --vt: #a78bfa;
+    --am: #fbbf24;
+    --text: #f1f5f9;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;overflow-x:hidden}
+  body{
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(34,211,238,0.12), transparent 60%),
+      radial-gradient(900px 500px at 90% 0%, rgba(244,114,182,0.10), transparent 60%),
+      radial-gradient(700px 500px at 60% 100%, rgba(167,139,250,0.08), transparent 60%),
+      var(--bg);
+    min-height:100vh;
+  }
+  .grid-bg{
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(to right, rgba(34,211,238,0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(34,211,238,0.04) 1px, transparent 1px);
+    background-size:60px 60px;
+    -webkit-mask-image:radial-gradient(ellipse at 50% 30%, black 30%, transparent 80%);
+    mask-image:radial-gradient(ellipse at 50% 30%, black 30%, transparent 80%);
+  }
+  .font-display{font-family:"Syne",sans-serif;letter-spacing:-0.02em}
+  .font-mono{font-family:"JetBrains Mono",monospace}
+  .neon-card{
+    background:linear-gradient(145deg, rgba(20,24,34,0.88), rgba(12,15,22,0.88));
+    backdrop-filter:blur(14px);
+    border:1px solid rgba(34,211,238,0.18);
+    box-shadow:0 0 0 1px rgba(34,211,238,0.05), 0 20px 60px -20px rgba(34,211,238,0.15), inset 0 1px 0 rgba(255,255,255,0.04);
+    border-radius:1rem;
+  }
+  .neon-cyan{text-shadow:0 0 8px rgba(34,211,238,0.7), 0 0 24px rgba(34,211,238,0.35)}
+  .neon-mg{text-shadow:0 0 8px rgba(244,114,182,0.7), 0 0 24px rgba(244,114,182,0.4)}
+  .chip{
+    display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .7rem;border-radius:9999px;
+    font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;
+    background:rgba(20,24,34,0.8);border:1px solid rgba(34,211,238,0.25);color:#7dd3fc;
+  }
+  .chip-mg{border-color:rgba(244,114,182,0.35);color:#fbcfe8}
+  .chip-lm{border-color:rgba(163,230,53,0.35);color:#bef264}
+  .chip-am{border-color:rgba(251,191,36,0.40);color:#fde68a}
+  .chip-vt{border-color:rgba(167,139,250,0.4);color:#c4b5fd}
+  .neon-btn{
+    position:relative;border-radius:.85rem;padding:.7rem 1.4rem;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;font-size:.78rem;color:#0a0c14;border:0;cursor:pointer;
+    background:linear-gradient(135deg, #67e8f9, #06b6d4);
+    box-shadow:0 0 0 1px rgba(34,211,238,0.45), 0 8px 30px -8px rgba(34,211,238,0.6);
+    transition:transform .2s ease, filter .2s ease, box-shadow .25s ease;
+  }
+  .neon-btn:hover{transform:translateY(-1px);filter:brightness(1.12);box-shadow:0 0 0 1px rgba(34,211,238,0.7), 0 14px 40px -8px rgba(34,211,238,0.7)}
+  .neon-btn:disabled{opacity:.5;cursor:not-allowed}
+  .input{
+    background:rgba(20,24,34,0.8);border:1px solid rgba(255,255,255,0.08);border-radius:.6rem;
+    padding:.55rem .8rem;color:#cffafe;font-family:"JetBrains Mono",monospace;outline:none;
+    transition:border-color .15s ease;width:100%;
+  }
+  .input:focus{border-color:rgba(34,211,238,0.6)}
+  .switch{position:relative;display:inline-block;width:42px;height:22px;flex-shrink:0}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;cursor:pointer;inset:0;background:#1f2937;border-radius:9999px;transition:.2s;border:1px solid rgba(255,255,255,0.08)}
+  .slider:before{content:"";position:absolute;height:16px;width:16px;left:2px;top:2px;background:#cbd5e1;border-radius:50%;transition:.2s}
+  .switch input:checked + .slider{background:linear-gradient(135deg,#22d3ee,#0891b2);box-shadow:0 0 12px rgba(34,211,238,0.5)}
+  .switch input:checked + .slider:before{transform:translateX(20px);background:#fff}
+  .scanline{position:relative}
+  .scanline::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:repeating-linear-gradient(180deg,transparent 0 2px, rgba(34,211,238,0.02) 2px 3px)}
+  .fade-up{animation:fadeUp .35s ease both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .pulse-glow{animation:pulseG 3s ease-in-out infinite}
+  @keyframes pulseG{0%,100%{box-shadow:0 0 0 1px rgba(34,211,238,0.25)}50%{box-shadow:0 0 0 1px rgba(34,211,238,0.55), 0 0 40px rgba(34,211,238,0.25)}}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:#0a0c14}
+  ::-webkit-scrollbar-thumb{background:linear-gradient(180deg, rgba(34,211,238,.4), rgba(244,114,182,.4));border-radius:8px}
+  .katex{color:#f1faff;font-size:1.05em}
+  .katex-display{margin:.4em 0 !important}
+  .toast{position:fixed;bottom:20px;right:20px;background:rgba(10,12,18,0.95);border:1px solid rgba(34,211,238,0.35);border-radius:.6rem;padding:.7rem 1rem;color:#a5f3fc;font-size:.85rem;z-index:1000;animation:fadeUp .25s ease both}
+  .toast.error{border-color:rgba(244,114,182,0.5);color:#fbcfe8}
+  details summary{cursor:pointer;list-style:none}
+  details summary::-webkit-details-marker{display:none}
+  .loader{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.2);border-top-color:#22d3ee;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  table{width:100%;font-family:"JetBrains Mono",monospace;font-size:.9rem;border-collapse:collapse}
+  th{text-align:left;text-transform:uppercase;letter-spacing:.05em;font-size:.7rem;color:rgba(255,255,255,0.45);padding:.5rem 0;font-weight:500}
+  td{padding:.5rem 0;border-top:1px solid rgba(255,255,255,0.05);color:#cffafe}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="relative z-10 max-w-[1400px] mx-auto px-6 pt-10 pb-20">
+  <!-- Header -->
+  <header class="flex items-center justify-between gap-6 flex-wrap mb-8">
+    <div class="flex items-center gap-4">
+      <div class="relative w-12 h-12 grid place-items-center rounded-xl pulse-glow" style="background:linear-gradient(135deg, rgba(34,211,238,0.2), rgba(244,114,182,0.2));border:1px solid rgba(34,211,238,0.3)">
+        <span class="text-2xl" style="color:#67e8f9">Σ</span>
+      </div>
+      <div>
+        <div class="font-display text-3xl md:text-4xl font-extrabold neon-cyan">MATH<span class="neon-mg" style="color:#f0abfc">/</span>STUDIO</div>
+        <div class="text-[0.7rem] uppercase tracking-[0.4em] font-mono" style="color:rgba(255,255,255,0.4)">analyse · sympy · 100% navigateur</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="chip">dérivées</span>
+      <span class="chip chip-mg">intégrales</span>
+      <span class="chip chip-lm">tableaux</span>
+      <span class="chip chip-am">tracé</span>
+      <span id="pyStatus" class="chip"><span class="loader"></span> chargement de sympy…</span>
+    </div>
+  </header>
+
+  <main class="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
+    <div class="space-y-6">
+
+      <!-- Function input -->
+      <section class="neon-card scanline p-6">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="chip chip-mg">entrée</span>
+          <span class="text-xs uppercase tracking-[0.25em]" style="color:rgba(255,255,255,0.4)">tapez n'importe quelle fonction</span>
+        </div>
+        <div class="relative group">
+          <div aria-hidden style="position:absolute;inset:-1px;border-radius:1rem;background:linear-gradient(90deg,rgba(34,211,238,0.4),rgba(244,114,182,0.4),rgba(167,139,250,0.4));opacity:.6;filter:blur(10px)"></div>
+          <div class="relative flex items-stretch gap-2 rounded-2xl p-2" style="background:#11141d;border:1px solid rgba(34,211,238,0.2)">
+            <div class="flex items-center pl-3 pr-1 font-mono" style="color:rgba(103,232,249,0.85)">f(x) =</div>
+            <input id="exprInput" class="input flex-1 h-12 bg-transparent border-0 text-base" placeholder="ex. sin(x)*exp(-x^2/4) + ln(x^2+1)" />
+            <button id="analyzeBtn" class="neon-btn h-12 px-6" disabled>⚡ Analyser</button>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <span class="text-[0.7rem] uppercase tracking-[0.2em] self-center mr-1" style="color:rgba(255,255,255,0.35)">Exemples</span>
+          <button class="chip example font-mono" data-expr="x^3 - 3x + 2">x³ - 3x + 2</button>
+          <button class="chip example font-mono" data-expr="sin(x)*cos(x)">sin(x)·cos(x)</button>
+          <button class="chip example font-mono" data-expr="x*exp(-x^2)">x·e^(-x²)</button>
+          <button class="chip example font-mono" data-expr="ln(x^2+1)">ln(x²+1)</button>
+          <button class="chip example font-mono" data-expr="(x^2-1)/(x-2)">(x²-1)/(x-2)</button>
+          <button class="chip example font-mono" data-expr="sin(x)/x">sin(x)/x</button>
+        </div>
+      </section>
+
+      <!-- Options -->
+      <section class="neon-card p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="chip chip-lm">paramètres</span>
+          <span class="text-xs uppercase tracking-[0.25em]" style="color:rgba(255,255,255,0.4)">ce que tu veux calculer</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5" id="optsGrid"></div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-5 mt-5" style="border-top:1px solid rgba(255,255,255,0.05)">
+          <div><label class="block text-[0.7rem] uppercase tracking-[0.2em] mb-1" style="color:rgba(255,255,255,0.45)">Ordre dérivée max</label><input id="p_derivOrder" type="number" min="1" max="10" value="2" class="input" /></div>
+          <div><label class="block text-[0.7rem] uppercase tracking-[0.2em] mb-1" style="color:rgba(255,255,255,0.45)">Intégrale a</label><input id="p_intA" type="number" step="any" value="0" class="input" /></div>
+          <div><label class="block text-[0.7rem] uppercase tracking-[0.2em] mb-1" style="color:rgba(255,255,255,0.45)">Intégrale b</label><input id="p_intB" type="number" step="any" value="1" class="input" /></div>
+          <div><label class="block text-[0.7rem] uppercase tracking-[0.2em] mb-1" style="color:rgba(255,255,255,0.45)">Tracé x min</label><input id="p_xMin" type="number" step="any" value="-10" class="input" /></div>
+          <div><label class="block text-[0.7rem] uppercase tracking-[0.2em] mb-1" style="color:rgba(255,255,255,0.45)">Tracé x max</label><input id="p_xMax" type="number" step="any" value="10" class="input" /></div>
+          <div><label class="block text-[0.7rem] uppercase tracking-[0.2em] mb-1" style="color:rgba(255,255,255,0.45)">Taylor ordre</label><input id="p_taylorOrder" type="number" min="1" max="15" value="5" class="input" /></div>
+          <div><label class="block text-[0.7rem] uppercase tracking-[0.2em] mb-1" style="color:rgba(255,255,255,0.45)">Taylor autour de</label><input id="p_taylorAround" type="number" step="any" value="0" class="input" /></div>
+        </div>
+      </section>
+
+      <!-- Plot -->
+      <section id="plotSection" class="neon-card p-6 hidden fade-up">
+        <div class="text-[0.72rem] uppercase tracking-[0.3em] mb-4 pb-2" style="color:#67e8f9;border-bottom:1px solid rgba(34,211,238,0.3)">Tracé interactif</div>
+        <div id="plotLegend" class="flex flex-wrap items-center gap-2 mb-3"></div>
+        <div style="height:420px;background:rgba(0,0,0,0.3);border-radius:.75rem;border:1px solid rgba(34,211,238,0.15);padding:.75rem">
+          <canvas id="plotCanvas"></canvas>
+        </div>
+      </section>
+
+      <!-- Results -->
+      <div id="results" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div>
+
+      <section id="emptyState" class="neon-card p-10 text-center">
+        <div class="font-display text-2xl mb-2" style="color:rgba(255,255,255,0.7)">Prêt à explorer une fonction ?</div>
+        <div class="text-sm" style="color:rgba(255,255,255,0.4)">Tape une fonction ci-dessus ou clique sur un exemple — l'analyse complète arrive en quelques secondes.</div>
+      </section>
+    </div>
+
+    <!-- History -->
+    <aside class="neon-card p-5 h-fit xl:sticky xl:top-6">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-[0.7rem] uppercase tracking-[0.25em]" style="color:rgba(255,255,255,0.45)">⏱ historique</div>
+        <button id="clearHist" class="text-xs hover:text-pink-300 transition flex items-center gap-1" style="color:rgba(255,255,255,0.4)">🗑 vider</button>
+      </div>
+      <ul id="historyList" class="space-y-1.5 max-h-[60vh] overflow-y-auto pr-1"></ul>
+      <div id="historyEmpty" class="text-sm italic" style="color:rgba(255,255,255,0.35)">Aucune entrée encore.</div>
+    </aside>
+  </main>
+
+  <footer class="text-center text-xs pt-8" style="color:rgba(255,255,255,0.3)">
+    Math/Studio · SymPy (Pyodide) · 100% navigateur · syntaxe ^ ** sin cos tan ln exp sqrt abs · accepte tout
+  </footer>
+</div>
+
+<div id="toastWrap"></div>
+
+<script>
+// ============== UI state ==============
+const OPTIONS_DEF = [
+  {group:"Analyse", items:[
+    {k:"domain",label:"Domaine de définition"},
+    {k:"parity",label:"Parité"},
+    {k:"limits",label:"Limites"},
+    {k:"asymptotes",label:"Asymptotes"},
+  ]},
+  {group:"Calcul", items:[
+    {k:"derivatives",label:"Dérivées (n-ième)"},
+    {k:"antiderivative",label:"Primitive"},
+    {k:"definiteIntegral",label:"Intégrale définie"},
+    {k:"taylor",label:"Développement de Taylor"},
+  ]},
+  {group:"Points clés", items:[
+    {k:"roots",label:"Racines"},
+    {k:"extrema",label:"Extremums (min/max)"},
+    {k:"inflection",label:"Points d'inflexion"},
+  ]},
+  {group:"Tableaux & courbe", items:[
+    {k:"signTable",label:"Tableau de signe"},
+    {k:"variationTable",label:"Tableau de variation"},
+    {k:"plot",label:"Tracé de la courbe"},
+  ]},
+];
+const options = {};
+OPTIONS_DEF.forEach(s=>s.items.forEach(i=>options[i.k]=true));
+
+function renderOptions(){
+  const grid = document.getElementById("optsGrid");
+  grid.innerHTML = "";
+  OPTIONS_DEF.forEach(sec=>{
+    const col = document.createElement("div");
+    col.className="space-y-2.5";
+    col.innerHTML = `<div class="text-[0.7rem] uppercase tracking-[0.25em] font-display" style="color:rgba(103,232,249,0.85)">${sec.group}</div>`;
+    const list = document.createElement("div");
+    list.className="space-y-2";
+    sec.items.forEach(it=>{
+      const row = document.createElement("label");
+      row.className="flex items-center justify-between gap-3 py-1.5 px-3 rounded-xl cursor-pointer transition";
+      row.style.border="1px solid transparent";
+      row.onmouseenter = ()=>{row.style.borderColor="rgba(34,211,238,0.15)";row.style.background="rgba(34,211,238,0.05)";};
+      row.onmouseleave = ()=>{row.style.borderColor="transparent";row.style.background="transparent";};
+      row.innerHTML = `
+        <span class="text-sm" style="color:rgba(255,255,255,0.85)">${it.label}</span>
+        <span class="switch"><input type="checkbox" ${options[it.k]?"checked":""} data-opt="${it.k}"/><span class="slider"></span></span>
+      `;
+      list.appendChild(row);
+    });
+    col.appendChild(list);
+    grid.appendChild(col);
+  });
+  grid.querySelectorAll("input[data-opt]").forEach(inp=>{
+    inp.addEventListener("change", e=>{
+      options[e.target.dataset.opt] = e.target.checked;
+      if(lastData) renderResults(lastData);
+    });
+  });
+}
+renderOptions();
+
+// ============== Toast ==============
+function toast(msg, type){
+  const t = document.createElement("div");
+  t.className = "toast" + (type==="error"?" error":"");
+  t.textContent = msg;
+  document.getElementById("toastWrap").appendChild(t);
+  setTimeout(()=>{ t.style.opacity="0"; t.style.transition="opacity .3s"; setTimeout(()=>t.remove(),300); }, 2500);
+}
+
+// ============== History ==============
+const HIST_KEY = "mathstudio_history_v1";
+function getHist(){ try{ return JSON.parse(localStorage.getItem(HIST_KEY)||"[]"); }catch(e){return [];} }
+function setHist(arr){ localStorage.setItem(HIST_KEY, JSON.stringify(arr)); renderHist(); }
+function addHist(expr){
+  const cur = getHist().filter(x=>x.expression!==expr);
+  cur.unshift({id:String(Date.now()), expression:expr, created_at:new Date().toISOString()});
+  setHist(cur.slice(0,30));
+}
+function renderHist(){
+  const ul = document.getElementById("historyList");
+  const empty = document.getElementById("historyEmpty");
+  const items = getHist();
+  ul.innerHTML = "";
+  if(items.length===0){ empty.style.display="block"; return; }
+  empty.style.display="none";
+  items.forEach((it,i)=>{
+    const li = document.createElement("li");
+    li.className="group flex items-center gap-2 px-3 py-2 rounded-lg transition cursor-pointer";
+    li.style.background="rgba(0,0,0,0.3)";li.style.border="1px solid rgba(255,255,255,0.05)";
+    li.onmouseenter=()=>li.style.borderColor="rgba(34,211,238,0.3)";
+    li.onmouseleave=()=>li.style.borderColor="rgba(255,255,255,0.05)";
+    li.innerHTML = `<span class="font-mono text-sm truncate flex-1" style="color:#cffafe">${escapeHtml(it.expression)}</span><button class="text-sm opacity-50 hover:opacity-100" style="color:#f472b6">✕</button>`;
+    li.querySelector("span").onclick = ()=>{ document.getElementById("exprInput").value = it.expression; runAnalyze(); };
+    li.querySelector("button").onclick = (e)=>{ e.stopPropagation(); setHist(getHist().filter(x=>x.id!==it.id)); };
+    ul.appendChild(li);
+  });
+}
+document.getElementById("clearHist").onclick = ()=> setHist([]);
+renderHist();
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+// ============== Pyodide + SymPy ==============
+let pyodide = null;
+let pyReady = false;
+const PY_CODE = `
+import sympy as sp
+from sympy.parsing.sympy_parser import (parse_expr, standard_transformations,
+    implicit_multiplication_application, convert_xor, function_exponentiation)
+import json, math
+
+X = sp.Symbol("x", real=True)
+TRANSFORMS = standard_transformations + (implicit_multiplication_application, convert_xor, function_exponentiation)
+LOCAL_NS = {
+    "x": X, "e": sp.E, "E": sp.E, "pi": sp.pi, "Pi": sp.pi,
+    "inf": sp.oo, "infty": sp.oo, "infinity": sp.oo,
+    "ln": sp.log, "log": sp.log,
+    "log10": lambda a: sp.log(a, 10), "log2": lambda a: sp.log(a, 2),
+    "exp": sp.exp, "sqrt": sp.sqrt, "abs": sp.Abs,
+    "sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "cot": sp.cot, "sec": sp.sec, "csc": sp.csc,
+    "asin": sp.asin, "acos": sp.acos, "atan": sp.atan,
+    "arcsin": sp.asin, "arccos": sp.acos, "arctan": sp.atan,
+    "sinh": sp.sinh, "cosh": sp.cosh, "tanh": sp.tanh,
+    "asinh": sp.asinh, "acosh": sp.acosh, "atanh": sp.atanh,
+    "floor": sp.floor, "ceil": sp.ceiling, "ceiling": sp.ceiling, "sign": sp.sign,
+}
+
+def parse_function(text):
+    text = text.strip()
+    for p in ("f(x)=","f(x) =","y=","y =","f =","f="):
+        if text.lower().startswith(p):
+            text = text[len(p):]; break
+    return sp.sympify(parse_expr(text, local_dict=LOCAL_NS, transformations=TRANSFORMS))
+
+def safe_latex(e):
+    try: return sp.latex(e)
+    except: return str(e)
+
+def to_float(v):
+    try: return float(v)
+    except: return None
+
+def pt(v):
+    try: ap = to_float(sp.N(v))
+    except: ap = None
+    return {"exact": str(v), "latex": safe_latex(v), "approx": ap}
+
+def compute_domain(e):
+    try:
+        d = sp.calculus.util.continuous_domain(e, X, sp.S.Reals)
+        return {"latex": safe_latex(d), "text": str(d)}
+    except: return {"latex": "\\\\mathbb{R}", "text": "R"}
+
+def compute_parity(e):
+    try:
+        fn = sp.simplify(e.subs(X, -X))
+        if sp.simplify(fn - e) == 0: return "paire"
+        if sp.simplify(fn + e) == 0: return "impaire"
+    except: pass
+    return "ni paire ni impaire"
+
+def solve_real(expr, limit=10):
+    try:
+        sols = sp.solveset(sp.Eq(expr, 0), X, domain=sp.S.Reals)
+        out = []
+        if sols == sp.S.EmptySet or isinstance(sols, sp.ConditionSet): return out
+        if hasattr(sols, "__iter__"):
+            for s in list(sols)[:limit]:
+                out.append(pt(s))
+        return out
+    except: return []
+
+def classify_extrema(e, fp, fs):
+    out = []
+    for c in solve_real(fp, 20):
+        try:
+            xv = sp.nsimplify(c["exact"])
+            second = sp.N(fs.subs(X, xv))
+            kind = "indéterminé"
+            if second.is_real:
+                if float(second) > 0: kind = "minimum local"
+                elif float(second) < 0: kind = "maximum local"
+            out.append({"x": c, "y": pt(sp.N(e.subs(X, xv))), "type": kind})
+        except: continue
+    return out
+
+def compute_inflection(fs, e):
+    out = []
+    try:
+        sols = sp.solveset(sp.Eq(fs, 0), X, domain=sp.S.Reals)
+        if sols == sp.S.EmptySet or isinstance(sols, sp.ConditionSet): return out
+        for s in list(sols)[:10]:
+            try:
+                out.append({"x": pt(s), "y": pt(sp.N(e.subs(X, s)))})
+            except: continue
+    except: pass
+    return out
+
+def compute_asymptotes(e):
+    res = {"vertical": [], "horizontal": [], "oblique": []}
+    try:
+        sing = sp.singularities(e, X)
+        for s in list(sing)[:8]:
+            if s.is_real: res["vertical"].append(pt(s))
+    except: pass
+    for p, nm in [(sp.oo,"+∞"),(-sp.oo,"-∞")]:
+        try:
+            lim = sp.limit(e, X, p)
+            if lim.is_finite: res["horizontal"].append({"at": nm, "value": pt(lim)})
+        except: pass
+    for p, nm in [(sp.oo,"+∞"),(-sp.oo,"-∞")]:
+        try:
+            a = sp.limit(e/X, X, p)
+            if a.is_finite and a != 0:
+                b = sp.limit(e - a*X, X, p)
+                if b.is_finite:
+                    line = a*X + b
+                    res["oblique"].append({"at": nm, "latex": safe_latex(line), "a": pt(a), "b": pt(b)})
+        except: pass
+    return res
+
+def compute_limits(e):
+    out = {}
+    for p, nm in [(-sp.oo,"x → -∞"),(sp.oo,"x → +∞"),(0,"x → 0")]:
+        try:
+            lim = sp.limit(e, X, p)
+            out[nm] = {"latex": safe_latex(lim), "text": str(lim)}
+        except: out[nm] = {"latex": "?", "text": "indéfini"}
+    return out
+
+def sign_table(e):
+    roots = solve_real(e)
+    pts = sorted({r["approx"] for r in roots if r["approx"] is not None})
+    ext = [-1e18] + pts + [1e18]
+    fn = sp.lambdify(X, e, "math")
+    intervals = []
+    for i in range(len(ext)-1):
+        a, b = ext[i], ext[i+1]
+        if a==-1e18 and b==1e18: test=0.0
+        elif a==-1e18: test=b-1.0
+        elif b==1e18: test=a+1.0
+        else: test=(a+b)/2.0
+        try:
+            v = float(fn(test))
+            s = "+" if v>0 else ("-" if v<0 else "0")
+        except: s = "?"
+        intervals.append({
+            "from": "-∞" if a==-1e18 else f"{a:.4g}",
+            "to": "+∞" if b==1e18 else f"{b:.4g}",
+            "sign": s,
+        })
+    return {"roots": roots, "intervals": intervals}
+
+def variation_table(e, fp):
+    st = sign_table(fp)
+    out_int = []
+    for it in st["intervals"]:
+        s = it["sign"]
+        arrow = "↗" if s=="+" else ("↘" if s=="-" else "→")
+        out_int.append({**it, "variation": arrow})
+    cps = []
+    for r in st["roots"]:
+        if r["approx"] is None: continue
+        try:
+            cps.append({"x": r, "y": pt(sp.N(e.subs(X, sp.nsimplify(r["exact"]))))})
+        except: continue
+    return {"critical_points": cps, "intervals": out_int}
+
+def make_plot(e, fp, F, xmin, xmax, n=400):
+    step = (xmax - xmin) / (n - 1)
+    xs = [xmin + i*step for i in range(n)]
+    def samp(expr):
+        try:
+            fn = sp.lambdify(X, expr, "math")
+        except: return [None]*n
+        out = []
+        for xv in xs:
+            try:
+                v = fn(xv)
+                if isinstance(v,(int,float)) and math.isfinite(v) and abs(v) <= 1e6:
+                    out.append(float(v))
+                else: out.append(None)
+            except: out.append(None)
+        return out
+    return {"x": xs, "f": samp(e), "fprime": samp(fp), "F": samp(F) if F is not None else None}
+
+def analyze(payload):
+    p = json.loads(payload)
+    expr = parse_function(p["expression"])
+    out = {"input": p["expression"], "expr": str(expr), "latex": safe_latex(expr)}
+    try:
+        s = sp.simplify(expr)
+        out["simplified"] = {"text": str(s), "latex": safe_latex(s)}
+    except: out["simplified"] = {"text": str(expr), "latex": safe_latex(expr)}
+    out["domain"] = compute_domain(expr)
+    out["parity"] = compute_parity(expr)
+    fp = sp.diff(expr, X); fs = sp.diff(fp, X)
+    derivs = []
+    for o in sorted(set(p.get("derivative_orders", [1,2]))):
+        if 1 <= o <= 10:
+            try:
+                d = sp.simplify(sp.diff(expr, X, o))
+                derivs.append({"order": o, "latex": safe_latex(d), "text": str(d)})
+            except: pass
+    out["derivatives"] = derivs
+    try:
+        F = sp.integrate(expr, X)
+        out["antiderivative"] = {"latex": safe_latex(F), "text": str(F)}
+    except:
+        F = None; out["antiderivative"] = None
+    ib = p.get("integral_bounds")
+    if ib and len(ib)==2:
+        a,b = ib
+        try:
+            v = sp.integrate(expr, (X, a, b))
+            out["definite_integral"] = {"a": a, "b": b, "exact": str(v), "latex": safe_latex(v), "approx": to_float(sp.N(v))}
+        except Exception as e:
+            out["definite_integral"] = {"a": a, "b": b, "error": str(e)}
+    out["roots"] = solve_real(expr)
+    out["extrema"] = classify_extrema(expr, fp, fs)
+    out["inflection_points"] = compute_inflection(fs, expr)
+    out["asymptotes"] = compute_asymptotes(expr)
+    out["limits"] = compute_limits(expr)
+    try:
+        t = sp.series(expr, X, p.get("taylor_around",0), p.get("taylor_order",5)+1).removeO()
+        out["taylor"] = {"around": p.get("taylor_around",0), "order": p.get("taylor_order",5), "latex": safe_latex(t), "text": str(t)}
+    except: out["taylor"] = None
+    out["sign_table"] = sign_table(expr)
+    out["variation_table"] = variation_table(expr, fp)
+    if p.get("include_plot", True):
+        try:
+            xr = p.get("plot_range",[-10,10])
+            out["plot"] = make_plot(expr, fp, F, float(xr[0]), float(xr[1]))
+        except Exception as e:
+            out["plot"] = {"error": str(e)}
+    out["fprime"] = {"latex": safe_latex(sp.simplify(fp)), "text": str(fp)}
+    out["fsecond"] = {"latex": safe_latex(sp.simplify(fs)), "text": str(fs)}
+    return json.dumps(out)
+`;
+
+async function initPyodide(){
+  const statusEl = document.getElementById("pyStatus");
+  try{
+    pyodide = await loadPyodide({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.2/full/"});
+    statusEl.innerHTML = `<span class="loader"></span> installation de sympy…`;
+    await pyodide.loadPackage(["sympy"]);
+    pyodide.runPython(PY_CODE);
+    pyReady = true;
+    statusEl.classList.remove("chip");
+    statusEl.className = "chip chip-lm";
+    statusEl.textContent = "✓ sympy prêt";
+    document.getElementById("analyzeBtn").disabled = false;
+  }catch(e){
+    console.error(e);
+    statusEl.className = "chip chip-mg";
+    statusEl.textContent = "✗ échec chargement sympy";
+    toast("Impossible de charger SymPy. Vérifie ta connexion internet.", "error");
+  }
+}
+initPyodide();
+
+// ============== Analyze ==============
+let lastData = null;
+let chartInstance = null;
+
+function getParams(){
+  return {
+    derivOrder: parseInt(document.getElementById("p_derivOrder").value)||2,
+    intA: parseFloat(document.getElementById("p_intA").value)||0,
+    intB: parseFloat(document.getElementById("p_intB").value)||1,
+    xMin: parseFloat(document.getElementById("p_xMin").value)||-10,
+    xMax: parseFloat(document.getElementById("p_xMax").value)||10,
+    taylorOrder: parseInt(document.getElementById("p_taylorOrder").value)||5,
+    taylorAround: parseFloat(document.getElementById("p_taylorAround").value)||0,
+  };
+}
+
+async function runAnalyze(){
+  if(!pyReady){ toast("SymPy charge encore…", "error"); return; }
+  const expr = document.getElementById("exprInput").value.trim();
+  if(!expr){ toast("Entre une fonction.", "error"); return; }
+  const btn = document.getElementById("analyzeBtn");
+  btn.disabled = true; btn.innerHTML = `<span class="loader"></span> Analyse…`;
+  await new Promise(r=>setTimeout(r,30));
+  try{
+    const p = getParams();
+    const derivOrders = [];
+    const mx = Math.max(1, Math.min(p.derivOrder, 10));
+    for(let i=1;i<=mx;i++) derivOrders.push(i);
+    const payload = {
+      expression: expr,
+      derivative_orders: options.derivatives ? derivOrders : [1,2],
+      integral_bounds: options.definiteIntegral ? [p.intA, p.intB] : null,
+      plot_range: [p.xMin, p.xMax],
+      taylor_order: p.taylorOrder,
+      taylor_around: p.taylorAround,
+      include_plot: options.plot,
+    };
+    const res = pyodide.runPython(`analyze('${JSON.stringify(payload).replace(/\\/g,"\\\\").replace(/'/g,"\\'")}')`);
+    const data = JSON.parse(res);
+    lastData = data;
+    addHist(expr);
+    renderResults(data);
+    toast("Analyse terminée");
+  }catch(e){
+    console.error(e);
+    toast("Erreur : " + (e.message||e).toString().split("\n").slice(-3).join(" "), "error");
+  }finally{
+    btn.disabled = false; btn.innerHTML = "⚡ Analyser";
+  }
+}
+document.getElementById("analyzeBtn").onclick = runAnalyze;
+document.getElementById("exprInput").addEventListener("keydown", e=>{ if(e.key==="Enter") runAnalyze(); });
+document.querySelectorAll(".example").forEach(b=>{
+  b.onclick = ()=>{ document.getElementById("exprInput").value = b.dataset.expr; runAnalyze(); };
+});
+
+// ============== Render results ==============
+function L(tex, displayMode=true){
+  const span = document.createElement("span");
+  try{ katex.render(tex||"", span, {displayMode, throwOnError:false, output:"html"}); }
+  catch(e){ span.textContent = tex; }
+  return span;
+}
+
+function section(title, accent, testId){
+  const colors = {cyan:"#67e8f9", magenta:"#f0abfc", lime:"#bef264", amber:"#fde68a", violet:"#c4b5fd"};
+  const borders = {cyan:"rgba(34,211,238,0.3)", magenta:"rgba(244,114,182,0.3)", lime:"rgba(163,230,53,0.3)", amber:"rgba(251,191,36,0.3)", violet:"rgba(167,139,250,0.3)"};
+  const s = document.createElement("section");
+  s.className="neon-card scanline p-6 fade-up";
+  const h = document.createElement("div");
+  h.className="text-[0.72rem] uppercase tracking-[0.3em] mb-4 pb-2";
+  h.style.color = colors[accent]; h.style.borderBottom = `1px solid ${borders[accent]}`;
+  h.textContent = title;
+  s.appendChild(h);
+  const body = document.createElement("div");
+  body.className = "space-y-3";
+  body.style.color = "rgba(255,255,255,0.85)";
+  s.appendChild(body);
+  return {root:s, body};
+}
+
+function box(child){
+  const d = document.createElement("div");
+  d.style.background="rgba(0,0,0,0.3)";
+  d.style.border="1px solid rgba(34,211,238,0.1)";
+  d.className="rounded-xl p-3";
+  d.appendChild(child);
+  return d;
+}
+
+function label(t){
+  const d = document.createElement("div");
+  d.className="text-[0.65rem] uppercase tracking-[0.2em] mb-1";
+  d.style.color="rgba(255,255,255,0.45)";
+  d.textContent = t;
+  return d;
+}
+
+function renderResults(data){
+  document.getElementById("emptyState").style.display = "none";
+  const root = document.getElementById("results");
+  root.innerHTML = "";
+
+  // Function
+  {
+    const {root:s, body} = section("Fonction analysée", "cyan");
+    body.appendChild(box(L(`f(x) = ${data.latex}`)));
+    if(data.simplified && data.simplified.text !== data.expr){
+      const d = document.createElement("div");
+      d.appendChild(label("Forme simplifiée"));
+      d.appendChild(box(L(data.simplified.latex)));
+      body.appendChild(d);
+    }
+    root.appendChild(s);
+  }
+
+  // Domain & parity
+  if(options.domain || options.parity){
+    const {root:s, body} = section("Caractéristiques", "violet");
+    if(options.domain){
+      const d = document.createElement("div");
+      d.appendChild(label("Domaine de définition"));
+      d.appendChild(box(L(`D_f = ${data.domain.latex}`, false)));
+      body.appendChild(d);
+    }
+    if(options.parity){
+      const d = document.createElement("div");
+      d.appendChild(label("Parité"));
+      const v = document.createElement("div");
+      v.className="font-mono capitalize"; v.style.color="#f0abfc"; v.textContent = data.parity;
+      d.appendChild(v); body.appendChild(d);
+    }
+    root.appendChild(s);
+  }
+
+  // Derivatives
+  if(options.derivatives && data.derivatives && data.derivatives.length){
+    const {root:s, body} = section("Dérivées", "lime");
+    data.derivatives.forEach(dr=>{
+      const w = document.createElement("div");
+      w.style.background="rgba(0,0,0,0.3)";w.style.border="1px solid rgba(255,255,255,0.05)";w.className="rounded-xl p-3";
+      const lbl = document.createElement("div"); lbl.className="text-[0.65rem] uppercase tracking-[0.2em] mb-1"; lbl.style.color="rgba(190,242,100,0.85)"; lbl.textContent = `Dérivée d'ordre ${dr.order}`;
+      w.appendChild(lbl);
+      w.appendChild(L(`f^{(${dr.order})}(x) = ${dr.latex}`));
+      body.appendChild(w);
+    });
+    root.appendChild(s);
+  }
+
+  // Antiderivative + integral
+  if(options.antiderivative || options.definiteIntegral){
+    const {root:s, body} = section("Intégration", "magenta");
+    if(options.antiderivative && data.antiderivative){
+      const w = document.createElement("div");
+      w.style.background="rgba(0,0,0,0.3)";w.style.border="1px solid rgba(255,255,255,0.05)";w.className="rounded-xl p-3";
+      w.appendChild(label("Primitive"));
+      w.appendChild(L(`F(x) = ${data.antiderivative.latex} + C`));
+      body.appendChild(w);
+    }
+    if(options.definiteIntegral && data.definite_integral){
+      const di = data.definite_integral;
+      const w = document.createElement("div");
+      w.style.background="rgba(0,0,0,0.3)";w.style.border="1px solid rgba(255,255,255,0.05)";w.className="rounded-xl p-3";
+      w.appendChild(label("Intégrale définie"));
+      if(di.error){
+        const e = document.createElement("div"); e.style.color="#fde68a"; e.className="font-mono text-sm"; e.textContent = di.error; w.appendChild(e);
+      } else {
+        w.appendChild(L(`\\int_{${di.a}}^{${di.b}} f(x)\\,dx = ${di.latex}`));
+        if(di.approx != null){
+          const ap = document.createElement("div"); ap.className="font-mono text-sm mt-1"; ap.style.color="#67e8f9"; ap.textContent = `≈ ${di.approx.toFixed(6)}`; w.appendChild(ap);
+        }
+      }
+      body.appendChild(w);
+    }
+    root.appendChild(s);
+  }
+
+  // Roots
+  if(options.roots){
+    const {root:s, body} = section("Racines (zéros)", "amber");
+    if(!data.roots.length){
+      const e = document.createElement("div"); e.className="italic"; e.style.color="rgba(255,255,255,0.5)"; e.textContent="Aucune racine réelle trouvée."; body.appendChild(e);
+    } else {
+      const ul = document.createElement("ul"); ul.className="space-y-1.5";
+      data.roots.forEach((r,i)=>{
+        const li = document.createElement("li");
+        li.className="flex items-center gap-3 rounded-lg px-3 py-1.5";
+        li.style.background="rgba(0,0,0,0.3)";li.style.border="1px solid rgba(255,255,255,0.05)";
+        const c = document.createElement("span"); c.className="chip chip-am"; c.textContent="x"+(i+1); li.appendChild(c);
+        li.appendChild(L(r.latex,false));
+        if(r.approx!=null){
+          const ap = document.createElement("span"); ap.className="ml-auto font-mono text-sm"; ap.style.color="#fde68a"; ap.textContent = `≈ ${r.approx.toFixed(5)}`; li.appendChild(ap);
+        }
+        ul.appendChild(li);
+      });
+      body.appendChild(ul);
+    }
+    root.appendChild(s);
+  }
+
+  // Extrema
+  if(options.extrema){
+    const {root:s, body} = section("Extremums", "lime");
+    if(!data.extrema.length){
+      const e = document.createElement("div"); e.className="italic"; e.style.color="rgba(255,255,255,0.5)"; e.textContent="Aucun extremum trouvé."; body.appendChild(e);
+    } else {
+      const ul = document.createElement("ul"); ul.className="space-y-1.5";
+      data.extrema.forEach(ex=>{
+        const li = document.createElement("li");
+        li.className="rounded-lg px-3 py-2";
+        li.style.background="rgba(0,0,0,0.3)";li.style.border="1px solid rgba(255,255,255,0.05)";
+        const ch = document.createElement("span"); ch.className = ex.type.includes("max") ? "chip chip-mg" : "chip chip-lm"; ch.textContent = ex.type;
+        const row = document.createElement("div"); row.className="flex items-center gap-2 mb-1"; row.appendChild(ch);
+        const c = document.createElement("div"); c.className="font-mono text-sm"; c.style.color="#67e8f9";
+        c.textContent = `x ≈ ${ex.x.approx?.toFixed(5) ?? "?"}, f(x) ≈ ${ex.y.approx?.toFixed(5) ?? "?"}`;
+        li.appendChild(row); li.appendChild(c); ul.appendChild(li);
+      });
+      body.appendChild(ul);
+    }
+    root.appendChild(s);
+  }
+
+  // Inflection
+  if(options.inflection){
+    const {root:s, body} = section("Points d'inflexion", "violet");
+    if(!data.inflection_points.length){
+      const e = document.createElement("div"); e.className="italic"; e.style.color="rgba(255,255,255,0.5)"; e.textContent="Aucun point d'inflexion trouvé."; body.appendChild(e);
+    } else {
+      const ul = document.createElement("ul"); ul.className="space-y-1.5";
+      data.inflection_points.forEach(p=>{
+        const li = document.createElement("li");
+        li.className="rounded-lg px-3 py-1.5 font-mono text-sm";
+        li.style.background="rgba(0,0,0,0.3)";li.style.border="1px solid rgba(255,255,255,0.05)";li.style.color="#c4b5fd";
+        li.textContent = `x ≈ ${p.x.approx?.toFixed(5) ?? "?"}, f(x) ≈ ${p.y.approx?.toFixed(5) ?? "?"}`;
+        ul.appendChild(li);
+      });
+      body.appendChild(ul);
+    }
+    root.appendChild(s);
+  }
+
+  // Asymptotes
+  if(options.asymptotes){
+    const {root:s, body} = section("Asymptotes", "cyan");
+    const a = data.asymptotes;
+    if(!a.vertical.length && !a.horizontal.length && !a.oblique.length){
+      const e = document.createElement("div"); e.className="italic"; e.style.color="rgba(255,255,255,0.5)"; e.textContent="Aucune asymptote détectée."; body.appendChild(e);
+    } else {
+      const addList = (title, list, fmt) => {
+        if(!list.length) return;
+        const w = document.createElement("div");
+        const lb = document.createElement("div"); lb.className="text-[0.65rem] uppercase tracking-[0.2em] mb-1"; lb.style.color="rgba(103,232,249,0.85)"; lb.textContent = title;
+        w.appendChild(lb);
+        list.forEach(v=>{
+          const row = document.createElement("div"); row.className="font-mono text-sm"; row.style.color="#cffafe";
+          row.appendChild(document.createTextNode(fmt.prefix(v)));
+          row.appendChild(L(fmt.tex(v), false));
+          w.appendChild(row);
+        });
+        body.appendChild(w);
+      };
+      addList("Verticales", a.vertical, {prefix:_=>"x = ", tex:v=>v.latex});
+      addList("Horizontales", a.horizontal, {prefix:v=>`en ${v.at} : y = `, tex:v=>v.value.latex});
+      addList("Obliques", a.oblique, {prefix:v=>`en ${v.at} : y = `, tex:v=>v.latex});
+    }
+    root.appendChild(s);
+  }
+
+  // Limits
+  if(options.limits){
+    const {root:s, body} = section("Limites", "magenta");
+    Object.entries(data.limits).forEach(([k,v])=>{
+      const row = document.createElement("div");
+      row.className="flex items-baseline justify-between gap-4 py-1";
+      row.innerHTML = `<span class="text-xs uppercase tracking-wider" style="color:rgba(255,255,255,0.45)">${k}</span>`;
+      const r = document.createElement("span"); r.className="font-mono text-right"; r.style.color="#67e8f9";
+      r.appendChild(L(v.latex,false));
+      row.appendChild(r);
+      body.appendChild(row);
+    });
+    root.appendChild(s);
+  }
+
+  // Taylor
+  if(options.taylor && data.taylor){
+    const {root:s, body} = section(`Taylor (ordre ${data.taylor.order} autour de ${data.taylor.around})`, "violet");
+    body.appendChild(box(L(data.taylor.latex)));
+    root.appendChild(s);
+  }
+
+  // Sign table
+  if(options.signTable){
+    const {root:s, body} = section("Tableau de signe de f", "amber");
+    body.appendChild(renderSignTable(data.sign_table));
+    root.appendChild(s);
+  }
+
+  // Variation table
+  if(options.variationTable){
+    const {root:s, body} = section("Tableau de variation", "lime");
+    body.appendChild(renderVarTable(data.variation_table));
+    root.appendChild(s);
+  }
+
+  // Plot
+  if(options.plot && data.plot && !data.plot.error){
+    document.getElementById("plotSection").classList.remove("hidden");
+    renderPlot(data);
+  } else {
+    document.getElementById("plotSection").classList.add("hidden");
+  }
+}
+
+function renderSignTable(d){
+  const wrap = document.createElement("div"); wrap.className="overflow-x-auto";
+  if(!d || !d.intervals || !d.intervals.length){ const e=document.createElement("div");e.className="italic";e.style.color="rgba(255,255,255,0.5)";e.textContent="Indisponible.";return e;}
+  const t = document.createElement("table");
+  t.innerHTML = `<thead><tr><th>Intervalle</th><th style="text-align:right">Signe</th></tr></thead>`;
+  const tb = document.createElement("tbody");
+  d.intervals.forEach(it=>{
+    const tr = document.createElement("tr");
+    const color = it.sign==="+" ? "#bef264" : it.sign==="-" ? "#f0abfc" : "rgba(255,255,255,0.5)";
+    tr.innerHTML = `<td>]${it.from} ; ${it.to}[</td><td style="text-align:right;font-weight:bold;font-size:1.05rem;color:${color}">${it.sign}</td>`;
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t); return wrap;
+}
+
+function renderVarTable(d){
+  const wrap = document.createElement("div"); wrap.className="overflow-x-auto";
+  if(!d || !d.intervals || !d.intervals.length){ const e=document.createElement("div");e.className="italic";e.style.color="rgba(255,255,255,0.5)";e.textContent="Indisponible.";return e;}
+  const t = document.createElement("table");
+  t.innerHTML = `<thead><tr><th>Intervalle</th><th style="text-align:center">f'(x)</th><th style="text-align:right">Variation</th></tr></thead>`;
+  const tb = document.createElement("tbody");
+  d.intervals.forEach(it=>{
+    const tr = document.createElement("tr");
+    const color = it.sign==="+" ? "#bef264" : it.sign==="-" ? "#f0abfc" : "rgba(255,255,255,0.5)";
+    tr.innerHTML = `<td>]${it.from} ; ${it.to}[</td>
+      <td style="text-align:center;font-weight:bold;font-size:1.05rem;color:${color}">${it.sign}</td>
+      <td style="text-align:right;font-size:1.4rem">${it.variation}</td>`;
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t);
+  if(d.critical_points && d.critical_points.length){
+    const cp = document.createElement("div"); cp.className="mt-3 pt-3"; cp.style.borderTop="1px solid rgba(255,255,255,0.05)";
+    cp.innerHTML = `<div class="text-[0.65rem] uppercase tracking-[0.2em] mb-1" style="color:rgba(255,255,255,0.45)">Valeurs aux points critiques</div>`;
+    d.critical_points.forEach(p=>{
+      const r = document.createElement("div"); r.className="text-sm font-mono"; r.style.color="#67e8f9";
+      r.textContent = `f(${p.x.approx?.toFixed(4) ?? p.x.exact}) = ${p.y.approx?.toFixed(4) ?? p.y.exact}`;
+      cp.appendChild(r);
+    });
+    wrap.appendChild(cp);
+  }
+  return wrap;
+}
+
+function renderPlot(data){
+  const showState = {f:true, fp:true, F:false};
+  const legend = document.getElementById("plotLegend");
+  legend.innerHTML = "";
+
+  const makeLeg = (lbl, color, key) => {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.style.borderColor = color + "55";
+    b.style.color = showState[key] ? color : "white";
+    b.style.opacity = showState[key] ? "1" : "0.4";
+    b.innerHTML = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};box-shadow:0 0 8px ${color}"></span>${lbl}`;
+    b.onclick = ()=>{ showState[key] = !showState[key]; drawChart(); legend.innerHTML=""; build(); };
+    legend.appendChild(b);
+  };
+
+  // Roots chips
+  const build = ()=>{
+    legend.innerHTML = "";
+    makeLeg("f(x)", "#22d3ee", "f");
+    makeLeg("f'(x)", "#f472b6", "fp");
+    if(data.plot.F) makeLeg("F(x)", "#a78bfa", "F");
+    (data.roots||[]).slice(0,6).forEach(r=>{
+      if(r.approx==null) return;
+      const c = document.createElement("span"); c.className="chip chip-am"; c.textContent = `racine ≈ ${r.approx.toFixed(3)}`; legend.appendChild(c);
+    });
+  };
+  build();
+
+  const drawChart = ()=>{
+    const ctx = document.getElementById("plotCanvas");
+    if(chartInstance) chartInstance.destroy();
+    const xs = data.plot.x;
+    const datasets = [];
+    if(showState.f) datasets.push({label:"f(x)", data: xs.map((x,i)=>({x, y:data.plot.f[i]})), borderColor:"#22d3ee", backgroundColor:"transparent", borderWidth:2.2, pointRadius:0, spanGaps:false, tension:0.1});
+    if(showState.fp) datasets.push({label:"f'(x)", data: xs.map((x,i)=>({x, y:data.plot.fprime[i]})), borderColor:"#f472b6", backgroundColor:"transparent", borderWidth:1.5, borderDash:[4,4], pointRadius:0, spanGaps:false, tension:0.1});
+    if(showState.F && data.plot.F) datasets.push({label:"F(x)", data: xs.map((x,i)=>({x, y:data.plot.F[i]})), borderColor:"#a78bfa", backgroundColor:"transparent", borderWidth:1.5, borderDash:[2,6], pointRadius:0, spanGaps:false, tension:0.1});
+
+    // Point markers
+    const markers = [];
+    if(options.roots) (data.roots||[]).forEach(r=>{ if(r.approx!=null) markers.push({x:r.approx, y:0, c:"#fbbf24"}); });
+    if(options.extrema) (data.extrema||[]).forEach(e=>{ if(e.x.approx!=null && e.y.approx!=null) markers.push({x:e.x.approx, y:e.y.approx, c: e.type.includes("max")?"#f472b6":"#a3e635"}); });
+    if(options.inflection) (data.inflection_points||[]).forEach(p=>{ if(p.x.approx!=null && p.y.approx!=null) markers.push({x:p.x.approx, y:p.y.approx, c:"#a78bfa"}); });
+    if(markers.length){
+      datasets.push({
+        label:"points", type:"scatter", data: markers.map(m=>({x:m.x,y:m.y})),
+        pointBackgroundColor: markers.map(m=>m.c), pointBorderColor:"#fff", pointRadius:5, showLine:false,
+      });
+    }
+
+    // y limits
+    const vals = [];
+    if(showState.f) vals.push(...data.plot.f.filter(v=>v!=null && isFinite(v)));
+    if(showState.fp) vals.push(...data.plot.fprime.filter(v=>v!=null && isFinite(v)));
+    if(showState.F && data.plot.F) vals.push(...data.plot.F.filter(v=>v!=null && isFinite(v)));
+    const sorted = vals.map(Math.abs).sort((a,b)=>a-b);
+    const p95 = sorted[Math.floor(sorted.length*0.95)] || 10;
+    const ym = Math.max(1, Math.min(p95*1.2, 1e4));
+
+    chartInstance = new Chart(ctx, {
+      type:"line",
+      data:{datasets},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        animation:false,
+        scales:{
+          x:{type:"linear", grid:{color:"rgba(255,255,255,0.06)"}, ticks:{color:"#9ca3af", font:{family:"JetBrains Mono", size:11}}},
+          y:{min:-ym, max:ym, grid:{color:"rgba(255,255,255,0.06)"}, ticks:{color:"#9ca3af", font:{family:"JetBrains Mono", size:11}}},
+        },
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            backgroundColor:"rgba(10,12,18,0.95)", borderColor:"rgba(34,211,238,0.35)", borderWidth:1,
+            titleColor:"#a5f3fc", bodyColor:"#cffafe", titleFont:{family:"JetBrains Mono"}, bodyFont:{family:"JetBrains Mono"},
+            callbacks:{
+              title:items=>`x = ${items[0].parsed.x.toFixed(4)}`,
+              label:item=>`${item.dataset.label}: ${item.parsed.y==null?"—":item.parsed.y.toFixed(4)}`,
+            }
+          }
+        }
+      }
+    });
+  };
+  drawChart();
+}
+</script>
+</body>
+</html>
