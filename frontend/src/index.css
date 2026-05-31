@@ -1,0 +1,283 @@
+@import "katex/dist/katex.min.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fonts: Space Mono for math-ish + Orbitron for display + Outfit for body */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@500;700;800&display=swap");
+
+:root {
+    --neon-cyan: 180 100% 55%;
+    --neon-magenta: 320 100% 60%;
+    --neon-lime: 150 100% 60%;
+    --neon-violet: 270 100% 70%;
+    --neon-amber: 35 100% 60%;
+    --ink-0: 240 12% 4%;
+    --ink-1: 240 14% 7%;
+    --ink-2: 240 12% 11%;
+    --ink-3: 240 10% 16%;
+}
+
+@layer base {
+    :root {
+        --background: 240 14% 6%;
+        --foreground: 0 0% 96%;
+        --card: 240 12% 9%;
+        --card-foreground: 0 0% 96%;
+        --popover: 240 12% 9%;
+        --popover-foreground: 0 0% 96%;
+        --primary: 180 100% 55%;
+        --primary-foreground: 240 14% 6%;
+        --secondary: 240 10% 14%;
+        --secondary-foreground: 0 0% 96%;
+        --muted: 240 8% 18%;
+        --muted-foreground: 240 8% 65%;
+        --accent: 320 100% 60%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 240 12% 18%;
+        --input: 240 12% 14%;
+        --ring: 180 100% 55%;
+        --radius: 0.75rem;
+    }
+}
+
+* {
+    border-color: hsl(var(--border));
+}
+
+body {
+    margin: 0;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: "Outfit", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+.font-display {
+    font-family: "Syne", sans-serif;
+    letter-spacing: -0.02em;
+}
+.font-mono {
+    font-family: "JetBrains Mono", monospace;
+}
+
+/* Neon backdrop */
+.app-bg {
+    background:
+        radial-gradient(
+            1200px 600px at 10% -10%,
+            hsla(180, 100%, 55%, 0.12),
+            transparent 60%
+        ),
+        radial-gradient(
+            900px 500px at 90% 0%,
+            hsla(320, 100%, 60%, 0.1),
+            transparent 60%
+        ),
+        radial-gradient(
+            700px 500px at 60% 100%,
+            hsla(270, 100%, 70%, 0.08),
+            transparent 60%
+        ),
+        hsl(var(--background));
+    position: relative;
+}
+
+.grid-pattern {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(
+            to right,
+            hsla(180, 100%, 55%, 0.04) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            to bottom,
+            hsla(180, 100%, 55%, 0.04) 1px,
+            transparent 1px
+        );
+    background-size: 60px 60px;
+    mask-image: radial-gradient(
+        ellipse at 50% 30%,
+        black 30%,
+        transparent 80%
+    );
+    z-index: 0;
+}
+
+.scanline::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        180deg,
+        transparent 0 2px,
+        hsla(180, 100%, 55%, 0.02) 2px 3px
+    );
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.neon-card {
+    background:
+        linear-gradient(
+            145deg,
+            hsla(240, 14%, 9%, 0.85),
+            hsla(240, 14%, 6%, 0.85)
+        );
+    backdrop-filter: blur(14px);
+    border: 1px solid hsla(180, 100%, 55%, 0.18);
+    box-shadow:
+        0 0 0 1px hsla(180, 100%, 55%, 0.05),
+        0 20px 60px -20px hsla(180, 100%, 55%, 0.15),
+        inset 0 1px 0 hsla(0, 0%, 100%, 0.04);
+}
+
+.neon-glow-cyan {
+    text-shadow:
+        0 0 8px hsla(180, 100%, 55%, 0.7),
+        0 0 24px hsla(180, 100%, 55%, 0.35);
+}
+.neon-glow-magenta {
+    text-shadow:
+        0 0 8px hsla(320, 100%, 60%, 0.7),
+        0 0 24px hsla(320, 100%, 60%, 0.4);
+}
+
+.neon-btn {
+    position: relative;
+    border-radius: 9999px;
+    padding: 0.7rem 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    color: hsl(240 14% 6%);
+    background: linear-gradient(
+        135deg,
+        hsl(180 100% 60%),
+        hsl(180 100% 45%)
+    );
+    transition:
+        transform 200ms ease,
+        box-shadow 250ms ease,
+        filter 200ms ease;
+    box-shadow:
+        0 0 0 1px hsla(180, 100%, 55%, 0.45),
+        0 8px 30px -8px hsla(180, 100%, 55%, 0.6);
+}
+.neon-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.12);
+    box-shadow:
+        0 0 0 1px hsla(180, 100%, 55%, 0.7),
+        0 14px 40px -8px hsla(180, 100%, 55%, 0.7);
+}
+.neon-btn:active {
+    transform: translateY(0);
+}
+.neon-btn-magenta {
+    background: linear-gradient(
+        135deg,
+        hsl(320 100% 65%),
+        hsl(310 100% 50%)
+    );
+    color: white;
+    box-shadow:
+        0 0 0 1px hsla(320, 100%, 60%, 0.45),
+        0 8px 30px -8px hsla(320, 100%, 60%, 0.6);
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: hsla(240, 14%, 12%, 0.8);
+    border: 1px solid hsla(180, 100%, 55%, 0.25);
+    color: hsl(180 100% 75%);
+}
+.chip-magenta {
+    border-color: hsla(320, 100%, 60%, 0.35);
+    color: hsl(320 100% 80%);
+}
+.chip-lime {
+    border-color: hsla(150, 100%, 60%, 0.35);
+    color: hsl(150 100% 75%);
+}
+.chip-amber {
+    border-color: hsla(35, 100%, 60%, 0.4);
+    color: hsl(35 100% 75%);
+}
+
+input::selection,
+textarea::selection {
+    background: hsla(180, 100%, 55%, 0.35);
+    color: white;
+}
+
+/* katex tweaks for dark */
+.katex {
+    color: #f1faff;
+    font-size: 1.05em;
+}
+.katex-display {
+    margin: 0.5em 0 !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: hsl(240 14% 6%);
+}
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        hsla(180, 100%, 55%, 0.4),
+        hsla(320, 100%, 60%, 0.4)
+    );
+    border-radius: 8px;
+}
+
+/* Fade-in for results */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.fade-up {
+    animation: fadeUp 350ms ease both;
+}
+
+@keyframes pulseGlow {
+    0%,
+    100% {
+        box-shadow: 0 0 0 1px hsla(180, 100%, 55%, 0.25);
+    }
+    50% {
+        box-shadow:
+            0 0 0 1px hsla(180, 100%, 55%, 0.55),
+            0 0 40px hsla(180, 100%, 55%, 0.25);
+    }
+}
+.pulse-glow {
+    animation: pulseGlow 3s ease-in-out infinite;
+}
